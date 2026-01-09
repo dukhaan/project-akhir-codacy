@@ -1,0 +1,163 @@
+# AI Agent Refactoring Rules & Boundaries
+
+## 1. Tujuan Utama
+AI Agent ini bertugas **melakukan refactoring kode** untuk meningkatkan:
+- Keterbacaan (readability)
+- Maintainability
+- Scalability
+- Konsistensi arsitektur
+
+Tanpa mengubah perilaku bisnis (business logic) yang sudah berjalan.
+
+---
+
+## 2. Scope & Boundary
+
+### 2.1 Yang BOLEH Dilakukan
+- Memindahkan logic dari Controller ke **Service**
+- Memisahkan akses data ke **Repository**
+- Merapikan dependensi menggunakan **Dependency Injection**
+- Mengurangi code smell (duplicate code, long method, god class, dll)
+- Menyederhanakan conditional & flow logic
+- Menyesuaikan penamaan class, method, dan variable agar konsisten
+
+### 2.2 Yang TIDAK BOLEH Dilakukan
+- ❌ Mengubah struktur database (migration, column, table)
+- ❌ Mengubah response API (format, key, atau status code) kecuali diminta
+- ❌ Mengubah behavior bisnis
+- ❌ Menambahkan fitur baru
+- ❌ Membuat file baru jika file yang relevan **sudah tersedia**
+
+---
+
+## 3. Architecture Rules
+
+### 3.1 Controller Rules
+- Controller **harus tipis (thin controller)**
+- Controller hanya boleh:
+  - Menerima Request
+  - Validasi ringan (jika sudah ada helper, gunakan helper)
+  - Memanggil Service
+  - Mengembalikan Response
+
+**Controller TIDAK BOLEH:**
+- Query database langsung
+- Menyimpan business logic kompleks
+- Menangani transaksi DB
+
+---
+
+### 3.2 Service Rules
+- Service bertanggung jawab atas **business logic**
+- Service boleh:
+  - Mengatur alur proses
+  - Mengelola transaksi
+  - Memanggil Repository
+  - Menggunakan Helper / Action
+
+**Service TIDAK BOLEH:**
+- Mengakses DB langsung (harus lewat Repository)
+- Mengandung logic presentasi (response / view)
+
+---
+
+### 3.3 Repository Rules
+- Repository hanya bertanggung jawab pada **data access**
+- Semua query database **harus berada di Repository**
+- Gunakan interface (`RepositoryInterface`) jika sudah tersedia
+
+**Repository TIDAK BOLEH:**
+- Menyimpan business logic
+- Melakukan formatting response
+
+---
+
+## 4. File & Reusability Rules
+
+### 4.1 Reuse First Principle
+- Jika file berikut **sudah ada**, WAJIB digunakan:
+  - Service
+  - Repository
+  - Helper
+  - Action
+  - DTO
+- ❌ DILARANG membuat file baru yang fungsinya sama
+
+### 4.2 File Creation Rule
+File baru **hanya boleh dibuat jika**:
+- Tidak ada file sejenis sama sekali
+- Fungsinya benar-benar baru dan unik
+- Tidak menyebabkan duplikasi logic
+
+Jika ragu → **gunakan file yang sudah ada**
+
+---
+
+## 5. Clean Code Rules
+
+### 5.1 Naming Convention
+- Gunakan nama yang **deskriptif dan konsisten**
+- Hindari singkatan ambigu
+- Method name harus mencerminkan aksi:
+  - `createTransaction`
+  - `updateTenantStatus`
+  - `getHistoryByTenant`
+
+---
+
+### 5.2 Method Rules
+- 1 method = 1 tanggung jawab
+- Hindari method panjang (>30–40 baris)
+- Ekstrak logic kompleks ke:
+  - Private method
+  - Action
+  - Helper
+
+---
+
+### 5.3 DRY & KISS
+- Hindari logic yang berulang
+- Jika logic dipakai >1 kali → ekstrak
+- Jangan over-engineering
+
+---
+
+## 6. Validation & Helper Rules
+- Jika sudah ada `ValidationHelper`, **WAJIB digunakan**
+- Jangan duplikasi aturan validasi
+- Helper hanya berisi logic **stateless & reusable**
+
+---
+
+## 7. Error Handling Rules
+- Gunakan pola error handling yang sudah ada di project
+- Jangan melempar exception baru tanpa alasan kuat
+- Logging hanya jika relevan (error / critical flow)
+
+---
+
+## 8. Refactoring Safety Rules
+- Refactoring harus **non-breaking**
+- Pastikan:
+  - Signature method tetap sama
+  - Response tetap konsisten
+  - Tidak ada perubahan side-effect
+
+---
+
+## 9. Output Rules (Untuk AI Agent)
+Setiap hasil refactoring **WAJIB menyertakan**:
+1. Penjelasan singkat perubahan
+2. Alasan kenapa refactoring dilakukan
+3. Konfirmasi bahwa:
+   - Tidak ada penambahan column
+   - Tidak ada perubahan behavior
+   - File lama tetap digunakan
+
+---
+
+## 10. Prinsip Utama
+> **“Refactor for clarity, not creativity.”**  
+> Fokus pada perbaikan struktur, bukan menciptakan arsitektur baru.
+
+---
